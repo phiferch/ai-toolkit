@@ -113,7 +113,16 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
 
     if (isWindows) {
       // For Windows, use 'cmd.exe' to open a new command window
-      subprocess = spawn('cmd.exe', ['/c', 'start', 'cmd.exe', '/k', pythonPath, ...args], {
+      // Quote the python path so installations under "C:\\Program Files" work
+      const windowsArgs = [
+        '/c',
+        'start',
+        'cmd.exe',
+        '/k',
+        pythonPath.includes(' ') ? `"${pythonPath}"` : pythonPath,
+        ...args,
+      ];
+      subprocess = spawn('cmd.exe', windowsArgs, {
         env: {
           ...process.env,
           ...additionalEnv,
